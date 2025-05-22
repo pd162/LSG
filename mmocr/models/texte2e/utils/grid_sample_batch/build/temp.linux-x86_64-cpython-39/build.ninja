@@ -1,0 +1,30 @@
+ninja_required_version = 1.3
+cxx = c++
+nvcc = /usr/local/cuda-10.2/bin/nvcc
+
+cflags = -pthread -B /data1/ljh/anaconda3/envs/contest/compiler_compat -Wno-unused-result -Wsign-compare -DNDEBUG -O2 -Wall -fPIC -O2 -isystem /data1/ljh/anaconda3/envs/contest/include -I/data1/ljh/anaconda3/envs/contest/include -fPIC -O2 -isystem /data1/ljh/anaconda3/envs/contest/include -fPIC -Isrc -I/data1/ljh/anaconda3/envs/contest/lib/python3.9/site-packages/torch/include -I/data1/ljh/anaconda3/envs/contest/lib/python3.9/site-packages/torch/include/torch/csrc/api/include -I/data1/ljh/anaconda3/envs/contest/lib/python3.9/site-packages/torch/include/TH -I/data1/ljh/anaconda3/envs/contest/lib/python3.9/site-packages/torch/include/THC -I/usr/local/cuda-10.2/include -I/data1/ljh/code/contest/mmocrdev/mmocr/models/texte2e/utils/grid_sample_batch/src -I/data1/ljh/anaconda3/envs/contest/include/python3.9 -c
+post_cflags = -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=batch_grid_sample -D_GLIBCXX_USE_CXX11_ABI=0 -std=c++14
+cuda_cflags = -Isrc -I/data1/ljh/anaconda3/envs/contest/lib/python3.9/site-packages/torch/include -I/data1/ljh/anaconda3/envs/contest/lib/python3.9/site-packages/torch/include/torch/csrc/api/include -I/data1/ljh/anaconda3/envs/contest/lib/python3.9/site-packages/torch/include/TH -I/data1/ljh/anaconda3/envs/contest/lib/python3.9/site-packages/torch/include/THC -I/usr/local/cuda-10.2/include -I/data1/ljh/code/contest/mmocrdev/mmocr/models/texte2e/utils/grid_sample_batch/src -I/data1/ljh/anaconda3/envs/contest/include/python3.9 -c
+cuda_post_cflags = -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr --compiler-options ''"'"'-fPIC'"'"'' -DTORCH_API_INCLUDE_EXTENSION_H '-DPYBIND11_COMPILER_TYPE="_gcc"' '-DPYBIND11_STDLIB="_libstdcpp"' '-DPYBIND11_BUILD_ABI="_cxxabi1011"' -DTORCH_EXTENSION_NAME=batch_grid_sample -D_GLIBCXX_USE_CXX11_ABI=0 -gencode=arch=compute_70,code=compute_70 -gencode=arch=compute_70,code=sm_70 -std=c++14
+ldflags = 
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+rule cuda_compile
+  depfile = $out.d
+  deps = gcc
+  command = $nvcc  $cuda_cflags -c $in -o $out $cuda_post_cflags
+
+
+
+build /data1/ljh/code/contest/mmocrdev/mmocr/models/texte2e/utils/grid_sample_batch/build/temp.linux-x86_64-cpython-39/./src/GridSamplerBatch.o: compile /data1/ljh/code/contest/mmocrdev/mmocr/models/texte2e/utils/grid_sample_batch/src/GridSamplerBatch.cpp
+build /data1/ljh/code/contest/mmocrdev/mmocr/models/texte2e/utils/grid_sample_batch/build/temp.linux-x86_64-cpython-39/./src/GridSamplerBatch_cuda.o: cuda_compile /data1/ljh/code/contest/mmocrdev/mmocr/models/texte2e/utils/grid_sample_batch/src/GridSamplerBatch_cuda.cu
+build /data1/ljh/code/contest/mmocrdev/mmocr/models/texte2e/utils/grid_sample_batch/build/temp.linux-x86_64-cpython-39/./src/grid_sampler.o: compile /data1/ljh/code/contest/mmocrdev/mmocr/models/texte2e/utils/grid_sample_batch/src/grid_sampler.cpp
+
+
+
+
+
